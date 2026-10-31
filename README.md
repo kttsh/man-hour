@@ -25,6 +25,7 @@ man-hour/
 
 - [進め方＆タスク](docs/planning/plan-and-tasks.md)
   - [事前準備タスク｜工数データ取込方式の比較](docs/planning/ingestion-method-comparison.md)
+  - [更新方式シミュレーションの要求事項](docs/planning/update-method-simulation-requirements.md)
 
 ## 仕様書
 

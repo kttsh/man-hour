@@ -3,7 +3,7 @@
 > [!NOTE]
 > 工数システムのデータが「どのように記録されているか」を、実際のデータをSQLで数えて調べた結果を、できるだけやさしくまとめたページです。細かい数字や表は[サンプルデータ](sample-data.md)にあります。
 >
-> 2026-10-27時点のまとめです。その後の決定は[Silverコンセプト](../spec/silver/concept.md)と[ADR-002](../adr/adr-002-handle-repeated-oks10-change-history-in-silver.md)を見てください。
+> 2026-10-27時点のまとめです。その後の決定は[Silverコンセプト](../spec/silver/concept.md)と[ADR-003](../adr/adr-003-separate-latest-input-and-approved-actuals.md)を見てください。
 
 ## 1. ひとことで言うと
 
@@ -166,7 +166,7 @@ D.MAP関連の作業を3時間→3.5時間→4時間に直した。G会社の作
 - 「今の時間割表だけ行がない」30社員日の理由。
 - B4だけなのに今の時間割表に行がある1件（2025年4月27日）。
 - マシン区分（machine_flg）の正式な定義は担当者確認。machine_flg＝1の行もSilverに残し、人の工数分析では利用側で除くことは2026-10-27に本人決定済み。
-- 調べた環境は本番データのコピーで、更新の有無は資料間で記述が割れている（[要求事項](../planning/update-method-simulation-requirements.md) A-01で確かめる）。
+- 調べた環境は本番データのコピーで、更新の有無は資料間で記述が割れている（[要求事項](../planning/update-method-simulation-requirements.md) V-01で確かめる）。
 
 ## 9. 取得元の担当者に聞きたいこと
 

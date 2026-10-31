@@ -74,6 +74,7 @@ man-hour/
 
 - [ADR-001 社員は「会社コード＋ユーザID」で識別する](docs/adr/adr-001-identify-employees-by-company-code-and-user-id.md)
 - [ADR-002 Bronzeに繰り返し入る変更履歴（V_T_OKS10）をSilverでどう扱うか](docs/adr/adr-002-handle-repeated-oks10-change-history-in-silver.md)
+- [ADR-003 最新の入力と承認済み実績を別のfactにし、承認済みは承認ゲートで作る](docs/adr/adr-003-separate-latest-input-and-approved-actuals.md)
 
 ## メモ
 

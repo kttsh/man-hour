@@ -30,7 +30,7 @@ dimensionの属性を上書きするか、変更ごとのバージョンを残�
 | 層 | 今回の方針と学び |
 | --- | --- |
 | Bronze | CSVの全行・全列を取得回ごとに蓄積。0時間・NULL・重複も削らず、元の記録を残す |
-| Silver | 承認済み実績のfactと分析の切り口を作る。ビュー1本＝fact1本とは限らない |
+| Silver | 承認済みと最新の入力のfact、分析の切り口を作る。ビュー1本＝fact1本とは限らない |
 
 **CSVの全行を残すことと、取得元全体の全件が届くことは別。** ビューの収録範囲とCSVの抽出範囲も分けて確認する。
 
@@ -39,6 +39,7 @@ dimensionの属性を上書きするか、変更ごとのバージョンを残�
 - **作業日・修正日・取込日は別。** 実績は作業日基準。status 4〜7を承認済みとし、未承認中は旧承認済み値を残す。
 - ビュー1本＝fact1本とは限らない。どのビューから実績を作るかは、ビューごとの収録内容を確かめて決める。
 - 修正の値が差分か修正後の値かを確かめる。修正後の値なら、修正前後を足さない。
+- 「最新の入力」と「承認済み」は別の問い。状態列で絞るだけでは、再編集中の旧承認値が欠ける。版を保持して、用途別に見せる。
 
 > [!NOTE]
 > **4月の3時間を6月に5時間へ修正したら：**
@@ -80,11 +81,11 @@ dimensionの属性を上書きするか、変更ごとのバージョンを残�
 > [!WARNING]
 > **事実・要件・設計案・未確認事項を分ける。仕様書への記載と実装・動作検証の完了も別。**
 >
-> C案のIDの安定性・再利用・同順位競合、CSVの取得範囲などは未確認事項として残る。詳細はSilverコンセプトとADRで管理する。
+> 承認ゲートの前提、CSVの取得範囲などは未確認事項として残る。詳細はSilverコンセプトとADRで管理する。
 
 ## 詳細の正本
 
 - Bronze：[docs/spec/bronze/concept.md](../spec/bronze/concept.md) ／ [docs/spec/bronze/table.md](../spec/bronze/table.md)
 - Silver：[docs/spec/silver/concept.md](../spec/silver/concept.md) ／ [docs/spec/silver/table.md](../spec/silver/table.md)
-- 判断理由：[ADR-001 社員は「会社コード＋ユーザID」で識別する](../adr/adr-001-identify-employees-by-company-code-and-user-id.md) ／ [ADR-002 Bronzeに繰り返し入る変更履歴（V_T_OKS10）をSilverでどう扱うか](../adr/adr-002-handle-repeated-oks10-change-history-in-silver.md)
+- 判断理由：[ADR-001 社員は「会社コード＋ユーザID」で識別する](../adr/adr-001-identify-employees-by-company-code-and-user-id.md) ／ [ADR-002 Bronzeに繰り返し入る変更履歴（V_T_OKS10）をSilverでどう扱うか](../adr/adr-002-handle-repeated-oks10-change-history-in-silver.md) ／ [ADR-003 最新の入力と承認済み実績を別のfactにし、承認済みは承認ゲートで作る](../adr/adr-003-separate-latest-input-and-approved-actuals.md)
 - 根拠：[工数システム テーブル仕様書](../spec/source/table.md) ／ [サンプルデータ](../research/sample-data.md) ／ [調査まとめ｜承認済みの工数はどこにある？（2026-10-27）](../research/2026-10-27-where-are-approved-man-hours.md)

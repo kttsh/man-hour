@@ -1,1 +1,9 @@
 .DS_Store
+
+# 接続設定（実際の値はコミットしない）
+.env
+.env.*
+!.env.example
+
+# 確認SQLの実行結果（内容を確かめてから docs/research/ に記録する）
+tools/update-method-simulation/results/

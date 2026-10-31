@@ -12,7 +12,7 @@
 | Bronze名 | 取得元（GEMS_DM_S.dbo） | 列数 | 注意点 |
 | --- | --- | --- | --- |
 | bronze.oks02 | V_T_OKS02（工数データ出力） | 47（元43＋管理4） | 検証した複合候補で複数行・工数違いあり。工数をキーにせず、合算・重複除去しない |
-| bronze.oks07 | V_T_OKS07（締切済工数修正情報） | 70（元66＋管理4） | 9列の複合候補は現データで重複なしだが一意性は未保証。修正前工数のNULL・0工数・複数回修正を保持 |
+| bronze.oks07 | V_T_OKS07（締切済工数修正情報） | 70（元66＋管理4） | 複合候補（社員日＋照合キー9列＋correction_num）は現データで重複なしだが一意性は未保証。修正前工数のNULL・0工数・複数回修正を保持 |
 | bronze.oks10 | V_T_OKS10（変更履歴情報） | 54（元50＋管理4） | 変更履歴IDは単独で非一意（全列同値の2行あり）。DISTINCTで消さない |
 
 ## 2. 共通仕様
@@ -80,7 +80,7 @@ DataSpiderの取得回ID・抽出開始時刻は保持しない（_extracted_at�
 | No. | 列名 | 型 | 論理名 | 取得元の型 | NULL可 | 備考 |
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | `company_cd` | STRING | 会社コード | nvarchar(3) | 不可 | OpenGIM・会社コード |
-| 2 | `keijo_date` | STRING | 計上日付 | varchar(8)→date | 不可 | yyyymmdd |
+| 2 | `keijo_date` | STRING | 計上日付 | varchar(8) | 不可 | yyyymmdd |
 | 3 | `user_id` | STRING | ユーザID | varchar(7) | 不可 | OpenGIM・ユーザID |
 | 4 | `mhi_emp_no` | STRING | 従業員番号 | varchar(6) | 不可 | OpenGIM・従業員番号 |
 | 5 | `sei_mei` | STRING | 氏名 | nvarchar(262) | 不可 | OpenGIM・氏名・姓＋氏名・名 |
@@ -132,7 +132,7 @@ DataSpiderの取得回ID・抽出開始時刻は保持しない（_extracted_at�
 | No. | 列名 | 型 | 論理名 | 取得元の型 | NULL可 | 備考 |
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | `company_cd` | STRING | 会社コード | nvarchar(3) | 不可 | 複合候補の一部（未保証）。OpenGIM・会社コード |
-| 2 | `keijo_date` | STRING | 計上日付 | date | 不可 | 複合候補の一部（未保証）。yyyymmdd |
+| 2 | `keijo_date` | STRING | 計上日付 | varchar(8) | 不可 | 複合候補の一部（未保証）。yyyymmdd |
 | 3 | `shozoku_cd` | STRING | 所属コード | varchar(12) | 不可 |  |
 | 4 | `shozoku_name` | STRING | 所属 | nvarchar(905) | 不可 | OpenGIM・所属名の連結（事業所〜班の略称） |
 | 5 | `mhi_emp_no` | STRING | 従業員番号 | varchar(6) | 不可 | OpenGIM・従業員番号 |
@@ -141,7 +141,7 @@ DataSpiderの取得回ID・抽出開始時刻は保持しない（_extracted_at�
 | 8 | `sei_mei` | STRING | ユーザ名 | nvarchar(262) | 不可 | OpenGIM・氏名・姓＋氏名・名 |
 | 9 | `correction_kbn` | STRING | 修正区分 | nvarchar(1) | 不可 |  |
 | 10 | `correction_num` | STRING | 修正回数 | nvarchar(2) | 不可 | 複合候補の一部（未保証） |
-| 11 | `keijo_genka_center_cd` | STRING | 賃金計上先原価センタ | nvarchar(10) | 不可 |  |
+| 11 | `keijo_genka_center_cd` | STRING | 賃金計上先原価センタ | nvarchar(10) | 不可 | 複合候補の一部（未保証） |
 | 12 | `keijo_genka_center_name` | STRING | 賃金計上先原価センタ名称 | nvarchar(40) | 不可 |  |
 | 13 | `wbs_cd` | STRING | WBS要素 | nvarchar(24) | 不可 | 複合候補の一部（未保証） |
 | 14 | `wbs_name` | STRING | WBS名称 | nvarchar(40) | 不可 |  |
@@ -153,11 +153,11 @@ DataSpiderの取得回ID・抽出開始時刻は保持しない（_extracted_at�
 | 20 | `genka_center_name` | STRING | 原価センタ名称 | nvarchar(40) | 不可 |  |
 | 21 | `katudo_type` | STRING | 活動タイプ | varchar(6) | 不可 | 複合候補の一部（未保証） |
 | 22 | `katudo_type_name` | STRING | 活動タイプ名称 | nvarchar(20) | 不可 |  |
-| 23 | `mhi_wbs` | STRING | MHI WBS | varchar(36) | 不可 |  |
+| 23 | `mhi_wbs` | STRING | MHI WBS | varchar(36) | 不可 | 複合候補の一部（未保証） |
 | 24 | `mhi_wbs_name` | STRING | MHI WBS 名称 | nvarchar(40) | 不可 |  |
 | 25 | `kyotenbetu_bunseki_key` | STRING | 拠点別分析キー | varchar(8000) | 可 | 複合候補の一部（未保証） |
-| 26 | `youeki_cd` | STRING | 用役コード | varchar(10) | 不可 |  |
-| 27 | `shokushu_cd` | STRING | 職種コード | varchar(10) | 不可 |  |
+| 26 | `youeki_cd` | STRING | 用役コード | varchar(10) | 不可 | 複合候補の一部（未保証） |
+| 27 | `shokushu_cd` | STRING | 職種コード | varchar(10) | 不可 | 複合候補の一部（未保証） |
 | 28 | `keijo_kosu` | NUMERIC | 計上工数 | decimal(5,1) | 可 |  |
 | 29 | `shusei_mae_kosu` | NUMERIC | 修正前工数 | decimal(5,1) | 可 |  |
 | 30 | `correction_user_id` | STRING | 修正ユーザ | nvarchar(10) | 不可 |  |
@@ -208,7 +208,7 @@ DataSpiderの取得回ID・抽出開始時刻は保持しない（_extracted_at�
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | `hnko_rireki_id` | INT64 | 変更履歴ID | bigint | 不可 | 単独では非一意（検証済み） |
 | 2 | `company_cd` | STRING | 会社コード | nvarchar(3) | 不可 | OpenGIM・会社コード |
-| 3 | `keijo_date` | STRING | 計上日付 | date | 不可 | yyyy/mm/dd |
+| 3 | `keijo_date` | STRING | 計上日付 | varchar(8) | 不可 | yyyymmdd |
 | 4 | `shozoku_cd` | STRING | 所属コード | varchar(12) | 不可 |  |
 | 5 | `shozoku_name` | STRING | 所属 | nvarchar(905) | 不可 | OpenGIM・所属名の連結（事業所〜班の略称） |
 | 6 | `mhi_emp_no` | STRING | 従業員番号 | varchar(6) | 不可 | OpenGIM・従業員番号 |

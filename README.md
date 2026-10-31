@@ -68,6 +68,7 @@ man-hour/
 
 - [調査まとめ｜承認済みの工数はどこにある？（2026-10-27）](docs/research/2026-10-27-where-are-approved-man-hours.md)
 - [サンプルデータ](docs/research/sample-data.md)
+- [図書の点検記録（2026-10-31）](docs/research/2026-10-31-document-consistency-review.md)
 
 ## 設計判断の記録（ADR）
 

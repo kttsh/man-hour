@@ -3,6 +3,9 @@
 > [!NOTE]
 > 草案（2026年10月29日、2026-10-28までの決定を反映）。分析目的・設計方針・判断理由を定める。テーブル・列・構築手順の詳細は [docs/spec/silver/table.md](table.md)。実装・動作検証は未実施。
 
+> [!WARNING]
+> 実績の元データ（2.1）は、取込方式の比較の前提と食い違っており判断待ち（[図書の点検記録](../../research/2026-10-31-document-consistency-review.md) J-01）。
+
 参照：[調査まとめ｜承認済みの工数はどこにある？（2026-10-27）](../../research/2026-10-27-where-are-approved-man-hours.md)、[サンプルデータ](../../research/sample-data.md)（検証の数値）、[ADR-001 社員は「会社コード＋ユーザID」で識別する](../../adr/adr-001-identify-employees-by-company-code-and-user-id.md)、[ADR-002 Bronzeに繰り返し入る変更履歴（V_T_OKS10）をSilverでどう扱うか](../../adr/adr-002-handle-repeated-oks10-change-history-in-silver.md)、[モデリング講座](../../learning/modeling-course.md)
 
 ## 用語
@@ -87,7 +90,7 @@ Silverはstarスキーマで、承認済み工数実績のfactと、その切り
 
 - CSVにV_T_OKS10の必要な全履歴が含まれる前提で設計する（取得元への確認は未実施）。一部しか届かない場合は構築手順を見直す。
 - 「同じshusei_dtの行＝1回の保存」とみなすのは仮置き。
-- correction_kbnは1＝締切前からある明細、0＝締切後に追加した明細と推測しているが、正式な定義は未確認。構築手順はcorrection_kbnに依存しない。
+- correction_kbnは1＝締切前に0時間より多い工数があった明細、0＝締切前にないか0時間の明細と推測しているが、正式な定義は未確認。構築手順はcorrection_kbnに依存しない。
 - サロゲートキーは、コード体系の変更やuser_idの切替でIDが変わる。消した明細を同じ内容で再入力すると同じIDが復活する。
 - CSVが届かないことだけで取消・削除と判断しない。部内サンプルの分類を全社に一般化しない。
 

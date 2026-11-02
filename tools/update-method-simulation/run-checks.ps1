@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    確認SQL（V-01〜V-08）を順に実行し、結果をCSVに保存する。
+    確認SQL（V-01〜V-17）を順に実行し、結果をCSVに保存する。
 
 .DESCRIPTION
     接続設定は .env から読む。追加のインストールは要らない（Windows PowerShell 5.1で動く）。
@@ -9,8 +9,11 @@
 .PARAMETER Only
     実行するIDを指定する（例: -Only v01,v06）。指定すると重いSQLも実行できる。
 
+.PARAMETER Extra
+    追加の確認SQL（V-09〜V-17）だけを実行する。重いSQLも含む。-Only とは同時に指定できない。
+
 .PARAMETER IncludeHeavy
-    既定では実行しない重いSQL（V-05、V-08）も含めて実行する。
+    既定では実行しない重いSQL（V-05、V-08）も含めて実行する。V-09〜V-17は対象にならない。
 
 .PARAMETER Force
     同じ日に成功済みのSQLも、もう一度実行する。
@@ -24,6 +27,7 @@
 [CmdletBinding()]
 param(
     [string[]]$Only,
+    [switch]$Extra,
     [switch]$IncludeHeavy,
     [switch]$Force,
     [string]$EnvFile = (Join-Path $PSScriptRoot '.env'),
@@ -33,16 +37,25 @@ param(
 Set-StrictMode -Version 2
 $ErrorActionPreference = 'Stop'
 
-# 実行する順番。軽いものから流し、重いものは既定で外す。
+# 実行する順番。軽いものから流し、重いものは既定で外す。Extra は -Extra か -Only で指定したときだけ流す。
 $Checks = @(
-    @{ Id = 'v01'; File = 'v01-freshness.sql';              Heavy = $false }
-    @{ Id = 'v06'; File = 'v06-update-date-by-day.sql';     Heavy = $false }
-    @{ Id = 'v02'; File = 'v02-status-mix.sql';             Heavy = $false }
-    @{ Id = 'v03'; File = 'v03-insert-date-uniformity.sql'; Heavy = $false }
-    @{ Id = 'v04'; File = 'v04-oks02-missing-days.sql';     Heavy = $false }
-    @{ Id = 'v07'; File = 'v07-row-bytes.sql';              Heavy = $false }
-    @{ Id = 'v05'; File = 'v05-full-row-duplicates.sql';    Heavy = $true }
-    @{ Id = 'v08'; File = 'v08-read-timing.sql';            Heavy = $true }
+    @{ Id = 'v01'; File = 'v01-freshness.sql';              Heavy = $false; Extra = $false }
+    @{ Id = 'v06'; File = 'v06-update-date-by-day.sql';     Heavy = $false; Extra = $false }
+    @{ Id = 'v02'; File = 'v02-status-mix.sql';             Heavy = $false; Extra = $false }
+    @{ Id = 'v03'; File = 'v03-insert-date-uniformity.sql'; Heavy = $false; Extra = $false }
+    @{ Id = 'v04'; File = 'v04-oks02-missing-days.sql';     Heavy = $false; Extra = $false }
+    @{ Id = 'v07'; File = 'v07-row-bytes.sql';              Heavy = $false; Extra = $false }
+    @{ Id = 'v05'; File = 'v05-full-row-duplicates.sql';    Heavy = $true;  Extra = $false }
+    @{ Id = 'v08'; File = 'v08-read-timing.sql';            Heavy = $true;  Extra = $false }
+    @{ Id = 'v14'; File = 'v14-oks07-lag-status.sql';       Heavy = $false; Extra = $true }
+    @{ Id = 'v09'; File = 'v09-oks07-on-oks02.sql';         Heavy = $false; Extra = $true }
+    @{ Id = 'v12'; File = 'v12-last-save-exceptions.sql';   Heavy = $false; Extra = $true }
+    @{ Id = 'v15'; File = 'v15-company-shortfall.sql';      Heavy = $false; Extra = $true }
+    @{ Id = 'v16'; File = 'v16-close-unmoved-rows.sql';     Heavy = $false; Extra = $true }
+    @{ Id = 'v11'; File = 'v11-oks02-missing-detail.sql';   Heavy = $false; Extra = $true }
+    @{ Id = 'v13'; File = 'v13-oks10-update-date.sql';      Heavy = $false; Extra = $true }
+    @{ Id = 'v17'; File = 'v17-key-collation.sql';          Heavy = $true;  Extra = $true }
+    @{ Id = 'v10'; File = 'v10-line-match.sql';             Heavy = $true;  Extra = $true }
 )
 
 $Invariant = [System.Globalization.CultureInfo]::InvariantCulture
@@ -277,6 +290,9 @@ function Get-DoneToday([string]$Root) {
 }
 
 function Select-Checks {
+    if ($Only -and $Extra) {
+        throw '-Only と -Extra は同時に指定できません。'
+    }
     if ($Only) {
         # cmd から渡すと v01,v06 が1つの文字列で届くので、ここで分ける。
         $wanted = @($Only | ForEach-Object { $_ -split ',' } |
@@ -289,8 +305,11 @@ function Select-Checks {
         }
         return @($Checks | Where-Object { $wanted -contains $_.Id })
     }
-    if ($IncludeHeavy) { return $Checks }
-    return @($Checks | Where-Object { -not $_.Heavy })
+    # -Extra は追加分を明示して選ぶので、-Only と同じく重いSQLも含める。
+    if ($Extra) { return @($Checks | Where-Object { $_.Extra }) }
+    $base = @($Checks | Where-Object { -not $_.Extra })
+    if ($IncludeHeavy) { return $base }
+    return @($base | Where-Object { -not $_.Heavy })
 }
 
 function Main {
